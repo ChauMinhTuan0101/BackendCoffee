@@ -302,7 +302,63 @@ $app->post('/updateserving','authenticate',function () use ($app){
     echoRespnse(201, $response);
 });
 
+/**
+ *
+ */
+$app->post('/inserttable','authenticate',function ()use ($app){
+    verifyRequiredParams(array('tableid'));
+    $response = array();
+    $id = $app->request->post('tableid');
+    $db = new DbHandler();
+    $res = $db->insertTable($id);
+    if($res == 0)
+    {
+        $response["error"] = false;
+        $response["message"] = "You are successfully Create Table";
+    } else if ($res == 1) {
+        $response["error"] = true;
+        $response["message"] = "Oops! An error occurred while creating table";
+    }
+    // echo json responses
+    echoRespnse(201, $response);
+});
 
+
+$app->get('/gettable',function (){
+    $db = new DbHandler();
+
+    $result = $db->getTable();
+    $response = array();
+    while($task = $result->fetch_assoc()){
+        $tmp = array();
+        $tmp["tableID"] = $task["tableID"];
+        $tmp["tableStatus"] = $task["tableStatus"];
+        array_push($response,$tmp);
+
+    }
+    echoRespnse(201,$response);
+});
+
+$app->post('/changestatus','authenticate',function () use ($app){
+   verifyRequiredParams(array('status','id'));
+   $response = array();
+   $status = $app->request->post('status');
+   $id= $app->request->post('id');
+   $db = new DbHandler();
+   $res = $db->changeTableStatus($status,$id);
+
+    if($res == 0)
+    {
+        $response["error"] = false;
+        $response["message"] = "You are successfully Change Status Table";
+    } else if ($res == 1) {
+        $response["error"] = true;
+        $response["message"] = "Oops! An error occurred while chaging Status table";
+    }
+    // echo json responses
+    echoRespnse(201, $response);
+
+});
 
 /**
  * Add Menu Item
@@ -484,12 +540,10 @@ $app->get('/getlatestorderid','authenticate',function () use($app){
     $result = $db->getLatestOrderID();
     $response = array();
     while($menuitem = $result->fetch_assoc()){
-        //$tmp = array();
-        //$tmp  = $menuitem;
+
         $response = $menuitem;
-        //array_push($response,$tmp);
+
     }
-    // $response['OrderID'] = $result['OrderID'];
     echoRespnse(201,$response);
 });
 
